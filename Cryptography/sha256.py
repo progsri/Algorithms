@@ -96,7 +96,11 @@ class sha256(object):
             self._buffer = self._buffer[64:]
             
     def digest(self):
-        mdi = self._counter & 0x3F # https://pythonspot.com/binary-numbers-and-logical-operators/
+
+        # https://pythonspot.com/binary-numbers-and-logical-operators/
+        # & signifies logical AND it is true  when both are true or either both are odd numbers.
+        mdi = self._counter & 0x3F # 0x3F is 63 in decimal.
+                                    #TODO why is 0x3F ( or 63 ) used
         print('mdi :: ' + str(mdi))
 
         length = struct.pack('!Q', self._counter<<3)
