@@ -101,17 +101,18 @@ class sha256(object):
         # & signifies logical AND it is true  when both are true or either both are odd numbers.
         mdi = self._counter & 0x3F # 0x3F is 63 in decimal.
                                     #TODO why is 0x3F ( or 63 ) used
+                                    #TODO what is the use of counter
         print('mdi :: ' + str(mdi))
+
+        if mdi < 56:    #TODO if & always give either 1 or 0 then mdi will not be more than 1 at any point. then why this if else
+            padlen = 55 - mdi
+        else:
+            padlen = 119 - mdi
+
+        print('padlen :: ' + str(padlen))
 
         length = struct.pack('!Q', self._counter<<3)
         print('length :: ' + str(length))
-
-        if mdi < 56:
-            padlen = 55-mdi
-        else:
-            padlen = 119-mdi
-
-        print('padlen :: ' + str(padlen))
 
         r = self.copy()
         r.update('\x80'+('\x00'*padlen)+length)
