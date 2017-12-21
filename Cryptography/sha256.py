@@ -1,10 +1,8 @@
 #!/usr/bin/python
-__author__ = 'Thomas Dixon'
-__license__ = 'MIT'
 
 import copy, struct, sys
 
-def new(m=None):
+def calculateHash(m=None):
     return sha256(m)
 
 class sha256(object):
@@ -45,6 +43,9 @@ class sha256(object):
         return ((x >> y) | (x << (32-y))) & 0xFFFFFFFFL
                     
     def _sha256_process(self, c):
+
+        print("c :: " + c)
+
         w = [0]*64
         w[0:16] = struct.unpack('!16L', c)
         
@@ -75,33 +76,52 @@ class sha256(object):
         self._h = [(x+y) & 0xFFFFFFFFL for x,y in zip(self._h, [a,b,c,d,e,f,g,h])]
         
     def update(self, m):
+
+        print("m :: " + m)
+
         if not m:
             return
         if type(m) is not str:
             raise TypeError, '%s() argument 1 must be string, not %s' % (sys._getframe().f_code.co_name, type(m).__name__)
         
         self._buffer += m
+        print("_buffer :: " + self._buffer)
+
         self._counter += len(m)
-        
+        print("_counter :: " + str(self._counter))
+
         while len(self._buffer) >= 64:
+            print("len(self._buffer) :: " + str(len(self._buffer)))
             self._sha256_process(self._buffer[:64])
             self._buffer = self._buffer[64:]
             
     def digest(self):
-        mdi = self._counter & 0x3F
+        mdi = self._counter & 0x3F # https://pythonspot.com/binary-numbers-and-logical-operators/
+        print('mdi :: ' + str(mdi))
+
         length = struct.pack('!Q', self._counter<<3)
-        
+        print('length :: ' + str(length))
+
         if mdi < 56:
             padlen = 55-mdi
         else:
             padlen = 119-mdi
-        
+
+        print('padlen :: ' + str(padlen))
+
         r = self.copy()
         r.update('\x80'+('\x00'*padlen)+length)
         return ''.join([struct.pack('!L', i) for i in r._h[:self._output_size]])
         
     def hexdigest(self):
-        return self.digest().encode('hex')
+        print('---------------------')
+
+        digest = self.digest()
+        print('digest ' + digest)
+        return digest.encode('hex')
         
     def copy(self):
         return copy.deepcopy(self)
+
+calculateHash("1")
+print("hash :: " + calculateHash("1").hexdigest())
